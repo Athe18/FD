@@ -1,0 +1,18 @@
+{
+  "model_name": "PRABAL-TrainDelay-GradientBoostingRegressor",
+  "model_version": "v1.2.0",
+  "trained_at": "2026-09-15T01:58:33.536031",
+  "train_samples": 1200,
+  "test_samples": 300,
+  "mae_minutes": 2.643,
+  "rmse_minutes": 3.302,
+  "r2_score": 0.8549,
+  "feature_importances": {
+    "traffic_density": 0.0365,
+    "corridor_length_km": 0.016,
+    "train_priority": 0.09,
+    "block_duration_min": 0.7831,
+    "rain_mm": 0.0571,
+    "scheduled_hour": 0.0173
+  }
+}
