@@ -9,14 +9,60 @@ CRITICAL DESIGN PRINCIPLES:
 3. Human-in-the-Loop — AI recommends and explains, human Section Controller approves.
 """
 
+import httpx
 from typing import Dict, Any, List, Optional
+from app.core.config import settings
 from app.ai.tools import tool_registry
 
 
 class PrabalSupervisor:
     """
     Intelligent Assistant for Section Controllers and Corridor Maintenance Planners.
+    Grounds live LLM generation with deterministic safety tools and authentic RAG knowledge.
     """
+
+    @classmethod
+    def call_gemini_api(cls, prompt: str, context: str) -> Optional[str]:
+        """
+        Calls Gemini 2.0 API with grounded context.
+        """
+        if not settings.LLM_API_KEY or settings.LLM_PROVIDER != "gemini":
+            return None
+
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings.LLM_MODEL}:generateContent?key={settings.LLM_API_KEY}"
+        system_instruction = (
+            "You are PRABAL AI Copilot, an expert railway systems decision assistant for Indian Railways. "
+            "You strictly follow deterministic safety rules, cite authentic manuals (IRPWM, ACTM, SEM), "
+            "and NEVER hallucinate train timings or block durations. Use the provided operational context."
+        )
+
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": f"System Context & Grounded Tools:\n{context}\n\nUser Question:\n{prompt}"}
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.2,
+                "maxOutputTokens": 800
+            }
+        }
+
+        try:
+            with httpx.Client(timeout=8.0) as client:
+                res = client.post(url, json=payload)
+                if res.status_code == 200:
+                    data = res.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts:
+                            return parts[0].get("text")
+        except Exception:
+            pass
+        return None
 
     @classmethod
     def handle_query(cls, user_message: str) -> Dict[str, Any]:
@@ -28,7 +74,6 @@ class PrabalSupervisor:
         # 1. Intent: What-If Simulation
         if "move" in msg_lower or "shift" in msg_lower or "what if" in msg_lower or "postpone" in msg_lower:
             tools_executed.append("simulate_what_if_shift")
-            # Extract target hour if mentioned, default to 15:00 (3 PM)
             target_hour = 15
             if "3 pm" in msg_lower or "15:00" in msg_lower or "15" in msg_lower:
                 target_hour = 15
@@ -40,7 +85,6 @@ class PrabalSupervisor:
             sim_result = tool_registry.simulate_what_if_shift("BLK-001", target_hour, 0)
             structured_data = sim_result
 
-            # Retrieve rule for shadow blocks / clearance
             rule_check = tool_registry.search_railway_rules("traffic block clearance buffer")
             if rule_check["status"] == "AUTHENTIC_SOURCE_FOUND":
                 citations.append(rule_check["citation"])
@@ -76,12 +120,9 @@ class PrabalSupervisor:
             tools_executed.append("simulate_rtis_train_delay")
             replan_result = tool_registry.simulate_rtis_train_delay(train_number="12102", delay_minutes=45)
             structured_data = replan_result
-            
             citations.append("CRIS Joint Operating Guidelines - Item 4.1 Shadow Blocks")
 
-            conflicts_count = replan_result["conflicts_detected_count"]
             alts_count = replan_result["alternative_blocks_count"]
-            
             response_text = (
                 f"### 🚨 Dynamic Re-Planning Event: RTIS Train Delay Detected\n\n"
                 f"- **Event:** Train **12102 (Jnaneswari Express)** delayed by **+45 minutes** approaching Kasara-Igatpuri.\n"
@@ -90,13 +131,12 @@ class PrabalSupervisor:
                 f"**Proposed Next Action:** Submitted candidate alternative window for **Section Controller 1-Click Approval**."
             )
 
-        # 3. Intent: Optimization / Recommend Schedule / Why chosen
+        # 3. Intent: Optimization / Recommend Schedule
         elif "why" in msg_lower or "explain" in msg_lower or "optimize" in msg_lower or "recommend" in msg_lower or "plan" in msg_lower:
             tools_executed.append("run_corridor_optimization")
             opt_plan = tool_registry.run_corridor_optimization()
             structured_data = opt_plan
             
-            # Authentic RAG citation
             rule_check = tool_registry.search_railway_rules("shadow block consolidation")
             if rule_check["status"] == "AUTHENTIC_SOURCE_FOUND":
                 citations.append(rule_check["citation"])
@@ -135,7 +175,7 @@ class PrabalSupervisor:
             )
 
         # 5. Intent: Railway Manual / Rules Query
-        elif "rule" in msg_lower or "manual" in msg_lower or "sOP" in msg_lower or "clause" in msg_lower:
+        elif "rule" in msg_lower or "manual" in msg_lower or "sop" in msg_lower or "clause" in msg_lower:
             tools_executed.append("search_railway_rules")
             rule_res = tool_registry.search_railway_rules(user_message)
             structured_data = rule_res
@@ -159,17 +199,23 @@ class PrabalSupervisor:
                 )
 
         else:
-            # Default helpful assistant response
-            tools_executed.append("get_corridor_data")
-            response_text = (
-                f"### 🛡️ Prabal Intelligent Decision Co-Pilot\n\n"
-                f"I am ready to assist with corridor maintenance coordination and block optimization:\n\n"
-                f"- **\"Show critical maintenance tasks due this week\"**\n"
-                f"- **\"Why did Prabal recommend the current block schedule?\"**\n"
-                f"- **\"What happens if we shift the 11:30 block to 3 PM?\"**\n"
-                f"- **\"Simulate 45-minute RTIS train delay on Express 12102\"**\n"
-                f"- **\"Query IRPWM rule on track machine block clearance\"**"
-            )
+            # Fallback or general conversational query via Gemini
+            context_summary = "Corridor: Kalyan-Igatpuri (Thal Ghat). Status: Normal. Active safety rules: SR-001 (Clearance 15m), SR-002 (OHE 25kV Isolation 20m)."
+            gemini_reply = cls.call_gemini_api(user_message, context_summary)
+            if gemini_reply:
+                response_text = gemini_reply
+                tools_executed.append("gemini_live_generation")
+            else:
+                tools_executed.append("get_corridor_data")
+                response_text = (
+                    f"### 🛡️ Prabal Intelligent Decision Co-Pilot\n\n"
+                    f"I am ready to assist with corridor maintenance coordination and block optimization:\n\n"
+                    f"- **\"Show critical maintenance tasks due this week\"**\n"
+                    f"- **\"Why did Prabal recommend the current block schedule?\"**\n"
+                    f"- **\"What happens if we shift the 11:30 block to 3 PM?\"**\n"
+                    f"- **\"Simulate 45-minute RTIS train delay on Express 12102\"**\n"
+                    f"- **\"Query IRPWM rule on track machine block clearance\"**"
+                )
 
         return {
             "response": response_text,
@@ -180,3 +226,4 @@ class PrabalSupervisor:
 
 
 supervisor = PrabalSupervisor()
+
