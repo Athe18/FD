@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Report Dashboard | Atharva Kamble</title>
+
+<!-- Bootstrap 5 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#F3F4FB;
+  --panel:#FFFFFF;
+  --ink:#1D1B33;
+  --muted:#79768F;
+  --line:#E7E6F3;
+
+  --indigo-1:#1B1436;
+  --indigo-2:#2E1F63;
+  --violet:#6C5CE7;
+  --violet-light:#A29BFE;
+  --teal:#00CEC9;
+  --amber:#FDCB6E;
+  --pink:#FD79A8;
+
+  --shadow: 0 10px 30px -12px rgba(46,31,99,0.18);
+}
+
+*{box-sizing:border-box;}
+
+body{
+  background:var(--bg);
+  font-family:'Inter',sans-serif;
+  color:var(--ink);
+  min-height:100vh;
+}
+
+h1,h2,h3,h4,h5,.brand,.nav-link,.card-value{
+  font-family:'Sora',sans-serif;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar{
+  position:fixed;
+  top:0; left:0; bottom:0;
+  width:260px;
+  background:linear-gradient(200deg, var(--indigo-2) 0%, var(--indigo-1) 75%);
+  color:#EDEBFF;
+  padding:28px 20px;
+  display:flex;
+  flex-direction:column;
+  z-index:1040;
+  transition:transform .3s ease;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:700;
+  font-size:1.25rem;
+  color:#fff;
+  margin-bottom:36px;
+  padding-left:4px;
+}
+.brand .dot{
+  width:12px;height:12px;border-radius:50%;
+  background:linear-gradient(135deg,var(--violet),var(--teal));
+  box-shadow:0 0 12px var(--violet);
+}
+
+.side-section-label{
+  font-size:.7rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:#9C97C4;
+  margin:18px 8px 8px;
+  font-weight:600;
+}
+
+.nav-link{
+  color:#C9C6E8;
+  font-weight:500;
+  font-size:.92rem;
+  border-radius:12px;
+  padding:10px 14px;
+  margin-bottom:4px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  transition:.2s ease;
+}
+.nav-link i{font-size:1.05rem; width:20px; text-align:center;}
+.nav-link:hover{background:rgba(255,255,255,0.06); color:#fff;}
+.nav-link.active{
+  background:linear-gradient(90deg, rgba(108,92,231,.35), rgba(108,92,231,.05));
+  color:#fff;
+  box-shadow:inset 3px 0 0 var(--violet-light);
+}
+
+.side-user{
+  margin-top:auto;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.06);
+}
+.side-user .avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),var(--violet));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700; color:#12102A; font-size:.9rem;
+}
+.side-user small{color:#A8A4CE;}
+
+/* ============ TOPBAR ============ */
+.topbar{
+  position:sticky; top:0; z-index:1030;
+  background:rgba(243,244,251,0.85);
+  backdrop-filter:blur(8px);
+  padding:16px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid var(--line);
+}
+.search-box{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:8px 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:260px;
+}
+.search-box input{
+  border:none;outline:none;font-size:.88rem; width:100%;
+  background:transparent;
+}
+.icon-btn{
+  width:40px;height:40px;border-radius:12px;
+  background:#fff;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  position:relative; color:var(--ink);
+}
+.icon-btn .badge-dot{
+  position:absolute; top:8px; right:9px;
+  width:7px;height:7px;border-radius:50%;
+  background:var(--pink);
+}
+
+.menu-toggle{
+  display:none;
+  border:none;background:#fff;border-radius:10px;
+  width:40px;height:40px;
+  border:1px solid var(--line);
+}
+
+/* ============ MAIN ============ */
+.main-wrap{ margin-left:260px; padding:28px; }
+
+.page-title{font-weight:700; font-size:1.55rem;}
+.page-sub{color:var(--muted); font-size:.92rem;}
+
+/* ============ STAT CARDS ============ */
+.stat-card{
+  background:var(--panel);
+  border-radius:18px;
+  padding:20px 22px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--line);
+  height:100%;
+  position:relative;
+  overflow:hidden;
+}
+.stat-card .icon-wrap{
+  width:44px;height:44px;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.15rem;
+  margin-bottom:14px;
+}
+.stat-card .card-value{
+  font-size:1.6rem;
+  font-weight:700;
+  margin-bottom:2px;
+}
+.stat-card .card-label{
+  color:var(--muted);
+  font-size:.82rem;
+  font-weight:500;
+}
+.trend-pill{
+  font-size:.76rem;
+  font-weight:600;
+  padding:3px 9px;
+  border-radius:20px;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+}
+.trend-up{background:rgba(0,206,201,0.14); color:#00A39E;}
+.trend-down{background:rgba(253,121,168,0.14); color:#D63384;}
+
+.bg-violet-soft{background:rgba(108,92,231,0.12); color:var(--violet);}
+.bg-teal-soft{background:rgba(0,206,201,0.14); color:#00A39E;}
+.bg-amber-soft{background:rgba(253,203,110,0.20); color:#B8860B;}
+.bg-pink-soft{background:rgba(253,121,168,0.14); color:#D6337E;}
+
+/* ============ PANELS ============ */
+.panel{
+  background:var(--panel);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--line);
+}
+.panel-title{font-weight:700; font-size:1.02rem;}
+.panel-sub{color:var(--muted); font-size:.8rem;}
+
+.legend-dot{width:9px;height:9px;border-radius:50%; display:inline-block; margin-right:6px;}
+
+.chart-box{ position:relative; width:100%; }
+.chart-box.chart-lg{ height:280px; }
+.chart-box.chart-md{ height:220px; }
+.chart-box.chart-sm{ height:190px; }
+.chart-box canvas{ max-width:100%; }
+
+.chart-fallback{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  height:100%;
+  color:var(--muted);
+  font-size:.85rem;
+  text-align:center;
+  border:1px dashed var(--line);
+  border-radius:12px;
+  padding:12px;
+}
+
+/* ============ TABLE ============ */
+.table-modern thead th{
+  color:var(--muted);
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  font-weight:600;
+  border-bottom:1px solid var(--line);
+  padding-bottom:12px;
+}
+.table-modern td{
+  padding:12px 8px;
+  border-bottom:1px solid var(--line);
+  font-size:.88rem;
+  vertical-align:middle;
+}
+.status-pill{
+  font-size:.75rem;
+  font-weight:600;
+  padding:4px 12px;
+  border-radius:20px;
+}
+.status-completed{background:rgba(0,206,201,0.14); color:#00A39E;}
+.status-pending{background:rgba(253,203,110,0.2); color:#B8860B;}
+.status-failed{background:rgba(253,121,168,0.14); color:#D6337E;}
+
+.prod-avatar{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700; font-size:.8rem; color:#fff;
+}
+
+@media (max-width: 991px){
+  .sidebar{ transform:translateX(-100%); }
+  .sidebar.show{ transform:translateX(0); }
+  .main-wrap{ margin-left:0; }
+  .menu-toggle{ display:flex; align-items:center; justify-content:center; }
+  .search-box{ display:none; }
+}
+
+/* ============ DROPDOWNS ============ */
+.notif-menu{
+  width:320px;
+  max-width:88vw;
+  border-radius:16px;
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+  padding:8px;
+}
+.notif-header{
+  font-weight:700;
+  font-size:.9rem;
+  color:var(--ink);
+}
+.notif-item{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:10px 8px;
+  border-radius:10px;
+  white-space:normal;
+}
+.notif-item:hover{ background:var(--bg); }
+.notif-icon{
+  width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem; flex-shrink:0;
+}
+.notif-text{ font-size:.82rem; color:var(--ink); line-height:1.3; }
+.notif-time{ font-size:.72rem; color:var(--muted); margin-top:2px; }
+
+/* ============ OTHER PAGES ============ */
+.page-icon-badge{
+  width:56px;height:56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;
+  background:linear-gradient(135deg, var(--violet), var(--teal));
+  color:#fff;
+}
+.mini-card{
+  background:var(--panel);
+  border-radius:14px;
+  border:1px solid var(--line);
+  padding:16px;
+  height:100%;
+}
+.faq-item{ border-bottom:1px solid var(--line); padding:14px 0; }
+.faq-item:last-child{ border-bottom:none; }
+</style>
+</head>
+<body>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><span class="dot"></span> Salesio</div>
+
+  <div class="side-section-label">Main</div>
+  <a href="#" class="nav-link active" data-page="Dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+  <a href="#" class="nav-link" data-page="Orders"><i class="bi bi-bag-check"></i> Orders</a>
+  <a href="#" class="nav-link" data-page="Products"><i class="bi bi-box-seam"></i> Products</a>
+  <a href="#" class="nav-link" data-page="Customers"><i class="bi bi-people"></i> Customers</a>
+
+  <div class="side-section-label">Insights</div>
+  <a href="#" class="nav-link" data-page="Analytics"><i class="bi bi-graph-up-arrow"></i> Analytics</a>
+  <a href="#" class="nav-link" data-page="Revenue"><i class="bi bi-wallet2"></i> Revenue</a>
+  <a href="#" class="nav-link" data-page="Reports"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
+
+  <div class="side-section-label">Account</div>
+  <a href="#" class="nav-link" data-page="Settings"><i class="bi bi-gear"></i> Settings</a>
+  <a href="#" class="nav-link" data-page="Help Center"><i class="bi bi-question-circle"></i> Help Center</a>
+
+  <div class="side-user">
+    <div class="avatar">AK</div>
+    <div>
+      <div style="font-size:.85rem; font-weight:600; color:#fff;">Atharva Kamble</div>
+      <small>TY B.Tech Student</small>
+    </div>
+  </div>
+</aside>
+
+<!-- ============ MAIN ============ -->
+<div class="main-wrap">
+
+  <!-- TOPBAR -->
+  <div class="topbar rounded-4 mb-4">
+    <div class="d-flex align-items-center gap-3">
+      <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('show')">
+        <i class="bi bi-list fs-5"></i>
+      </button>
+      <div class="search-box">
+        <i class="bi bi-search text-muted"></i>
+        <input type="text" placeholder="Search orders, products...">
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <div class="dropdown">
+        <button class="icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-bell"></i><span class="badge-dot"></span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end notif-menu p-2">
+          <div class="notif-header px-2 pb-2">Notifications</div>
+          <a class="dropdown-item notif-item" href="#">
+            <div class="notif-icon bg-violet-soft"><i class="bi bi-cart-check"></i></div>
+            <div>
+              <div class="notif-text">New order #4821 placed by Rohan Patil</div>
+              <div class="notif-time">2 minutes ago</div>
+            </div>
+          </a>
+          <a class="dropdown-item notif-item" href="#">
+            <div class="notif-icon bg-teal-soft"><i class="bi bi-graph-up-arrow"></i></div>
+            <div>
+              <div class="notif-text">Monthly sales target reached 85%</div>
+              <div class="notif-time">1 hour ago</div>
+            </div>
+          </a>
+          <a class="dropdown-item notif-item" href="#">
+            <div class="notif-icon bg-pink-soft"><i class="bi bi-exclamation-circle"></i></div>
+            <div>
+              <div class="notif-text">Payment failed for order #4798</div>
+              <div class="notif-time">3 hours ago</div>
+            </div>
+          </a>
+          <a class="dropdown-item notif-item" href="#">
+            <div class="notif-icon bg-amber-soft"><i class="bi bi-box-seam"></i></div>
+            <div>
+              <div class="notif-text">Desk Lamp stock is running low</div>
+              <div class="notif-time">Yesterday</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="dropdown">
+        <button class="icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-envelope"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end notif-menu p-2">
+          <div class="notif-header px-2 pb-2">Messages</div>
+          <a class="dropdown-item notif-item" href="#">
+            <div class="prod-avatar" style="background:var(--violet);">SJ</div>
+            <div>
+              <div class="notif-text"><strong>Sneha Joshi</strong> — Can I get an update on my order?</div>
+              <div class="notif-time">10 minutes ago</div>
+            </div>
+          </a>
+          <a class="dropdown-item notif-item" href="#">
+            <div class="prod-avatar" style="background:var(--teal);">KS</div>
+            <div>
+              <div class="notif-text"><strong>Karan Shah</strong> — Thanks, watch arrived today!</div>
+              <div class="notif-time">45 minutes ago</div>
+            </div>
+          </a>
+          <a class="dropdown-item notif-item" href="#">
+            <div class="prod-avatar" style="background:var(--amber);">AV</div>
+            <div>
+              <div class="notif-text"><strong>Aman Verma</strong> — Do you have this lamp in white?</div>
+              <div class="notif-time">2 hours ago</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="d-none d-sm-flex align-items-center gap-2 ms-2">
+        <div class="side-user" style="background:#fff; border:1px solid var(--line); padding:6px 12px;">
+          <div class="avatar" style="width:32px;height:32px;font-size:.72rem;">AK</div>
+          <div>
+            <div style="font-size:.8rem; font-weight:600;">Atharva Kamble</div>
+            <small class="text-muted" style="font-size:.7rem;">TY B.Tech</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboardView">
+
+  <!-- HEADER -->
+  <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-2">
+    <div>
+      <div class="page-title">Sales Report Dashboard</div>
+      <div class="page-sub">Welcome back, Atharva — here's how sales are trending this month.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-light border rounded-3 d-flex align-items-center gap-2"><i class="bi bi-calendar3"></i> This Month</button>
+      <button class="btn rounded-3 d-flex align-items-center gap-2" style="background:var(--violet); color:#fff;" onclick="exportDashboardCSV()"><i class="bi bi-download"></i> Export</button>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="stat-card">
+        <div class="icon-wrap bg-violet-soft"><i class="bi bi-currency-rupee"></i></div>
+        <div class="card-value">₹18.4L</div>
+        <div class="card-label">Total Revenue</div>
+        <span class="trend-pill trend-up mt-2 d-inline-flex"><i class="bi bi-arrow-up-short"></i> 12.5%</span>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card">
+        <div class="icon-wrap bg-teal-soft"><i class="bi bi-cart-check"></i></div>
+        <div class="card-value">2,540</div>
+        <div class="card-label">Total Orders</div>
+        <span class="trend-pill trend-up mt-2 d-inline-flex"><i class="bi bi-arrow-up-short"></i> 8.1%</span>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card">
+        <div class="icon-wrap bg-amber-soft"><i class="bi bi-people-fill"></i></div>
+        <div class="card-value">1,205</div>
+        <div class="card-label">New Customers</div>
+        <span class="trend-pill trend-down mt-2 d-inline-flex"><i class="bi bi-arrow-down-short"></i> 2.3%</span>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card">
+        <div class="icon-wrap bg-pink-soft"><i class="bi bi-graph-up"></i></div>
+        <div class="card-value">4.8%</div>
+        <div class="card-label">Conversion Rate</div>
+        <span class="trend-pill trend-up mt-2 d-inline-flex"><i class="bi bi-arrow-up-short"></i> 1.2%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="panel h-100">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <div class="panel-title">Revenue Overview</div>
+            <div class="panel-sub">Monthly sales performance — current vs last year</div>
+          </div>
+          <div class="d-flex gap-3">
+            <span class="panel-sub"><span class="legend-dot" style="background:var(--violet)"></span>2026</span>
+            <span class="panel-sub"><span class="legend-dot" style="background:var(--teal)"></span>2025</span>
+          </div>
+        </div>
+        <div class="chart-box chart-lg">
+          <canvas id="revenueChart"></canvas>
+          <div class="chart-fallback" id="revenueFallback">Chart couldn't load — check your internet connection, then reload this page.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="panel h-100">
+        <div class="panel-title mb-1">Sales by Category</div>
+        <div class="panel-sub mb-3">Share of total revenue</div>
+        <div class="chart-box chart-md">
+          <canvas id="categoryChart"></canvas>
+          <div class="chart-fallback" id="categoryFallback">Chart couldn't load — check your internet connection, then reload this page.</div>
+        </div>
+        <div class="d-flex flex-column gap-2 mt-3">
+          <div class="d-flex justify-content-between panel-sub"><span><span class="legend-dot" style="background:var(--violet)"></span>Electronics</span><span>42%</span></div>
+          <div class="d-flex justify-content-between panel-sub"><span><span class="legend-dot" style="background:var(--teal)"></span>Fashion</span><span>28%</span></div>
+          <div class="d-flex justify-content-between panel-sub"><span><span class="legend-dot" style="background:var(--amber)"></span>Home & Living</span><span>18%</span></div>
+          <div class="d-flex justify-content-between panel-sub"><span><span class="legend-dot" style="background:var(--pink)"></span>Others</span><span>12%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-5">
+      <div class="panel h-100">
+        <div class="panel-title mb-1">Weekly Orders</div>
+        <div class="panel-sub mb-3">Orders placed per day, this week</div>
+        <div class="chart-box chart-sm">
+          <canvas id="ordersChart"></canvas>
+          <div class="chart-fallback" id="ordersFallback">Chart couldn't load — check your internet connection, then reload this page.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="col-lg-7">
+      <div class="panel h-100">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="panel-title">Recent Transactions</div>
+          <a href="#" class="panel-sub text-decoration-none">View all <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-modern mb-0">
+            <thead>
+              <tr><th>Product</th><th>Customer</th><th>Amount</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="d-flex align-items-center gap-2"><div class="prod-avatar" style="background:var(--violet);">EB</div>Earbuds Pro</td>
+                <td>Rohan Patil</td>
+                <td>₹2,499</td>
+                <td><span class="status-pill status-completed">Completed</span></td>
+              </tr>
+              <tr>
+                <td class="d-flex align-items-center gap-2"><div class="prod-avatar" style="background:var(--teal);">SN</div>Sneaker Max</td>
+                <td>Sneha Joshi</td>
+                <td>₹3,199</td>
+                <td><span class="status-pill status-pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td class="d-flex align-items-center gap-2"><div class="prod-avatar" style="background:var(--amber);">DL</div>Desk Lamp</td>
+                <td>Aman Verma</td>
+                <td>₹899</td>
+                <td><span class="status-pill status-completed">Completed</span></td>
+              </tr>
+              <tr>
+                <td class="d-flex align-items-center gap-2"><div class="prod-avatar" style="background:var(--pink);">BP</div>Backpack Air</td>
+                <td>Priya Nair</td>
+                <td>₹1,749</td>
+                <td><span class="status-pill status-failed">Failed</span></td>
+              </tr>
+              <tr>
+                <td class="d-flex align-items-center gap-2"><div class="prod-avatar" style="background:var(--violet);">SW</div>Smart Watch</td>
+                <td>Karan Shah</td>
+                <td>₹5,999</td>
+                <td><span class="status-pill status-completed">Completed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div> <!-- /#dashboardView -->
+
+  <div id="otherView" style="display:none;"></div>
+
+  <div class="text-center pb-3 panel-sub">Sales Report Dashboard · Built by Atharva Kamble</div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+// ---------- File downloads ----------
+function triggerDownload(filename, content, mime) {
+  const blob = new Blob([content], { type: mime + ';charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function toCSV(rows) {
+  return rows.map(row =>
+    row.map(cell => {
+      const val = String(cell ?? '');
+      return /[",\n]/.test(val) ? '"' + val.replace(/"/g, '""') + '"' : val;
+    }).join(',')
+  ).join('\r\n');
+}
+
+function exportDashboardCSV() {
+  const rows = [
+    ['Sales Report Dashboard - Summary', '', '', ''],
+    ['Generated', new Date().toLocaleString(), '', ''],
+    [],
+    ['Metric', 'Value', 'Change', ''],
+    ['Total Revenue', '₹18.4L', '+12.5%', ''],
+    ['Total Orders', '2540', '+8.1%', ''],
+    ['New Customers', '1205', '-2.3%', ''],
+    ['Conversion Rate', '4.8%', '+1.2%', ''],
+    [],
+    ['Recent Transactions', '', '', ''],
+    ['Product', 'Customer', 'Amount', 'Status'],
+    ['Earbuds Pro', 'Rohan Patil', '₹2,499', 'Completed'],
+    ['Sneaker Max', 'Sneha Joshi', '₹3,199', 'Pending'],
+    ['Desk Lamp', 'Aman Verma', '₹899', 'Completed'],
+    ['Backpack Air', 'Priya Nair', '₹1,749', 'Failed'],
+    ['Smart Watch', 'Karan Shah', '₹5,999', 'Completed'],
+  ];
+  triggerDownload('sales-dashboard-export.csv', toCSV(rows), 'text/csv');
+}
+
+function downloadReport(name) {
+  const rows = [
+    [name, '', '', ''],
+    ['Prepared by', 'Salesio Dashboard', '', ''],
+    ['Generated', new Date().toLocaleString(), '', ''],
+    [],
+    ['Category', 'Units Sold', 'Revenue', 'Growth'],
+    ['Electronics', '1,120', '₹7.7L', '+14%'],
+    ['Fashion', '860', '₹5.2L', '+6%'],
+    ['Home & Living', '410', '₹3.3L', '+9%'],
+    ['Others', '150', '₹2.2L', '-3%'],
+  ];
+  const safeName = name.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-').toLowerCase();
+  triggerDownload(safeName + '.csv', toCSV(rows), 'text/csv');
+}
+
+// ---------- Sidebar navigation ----------
+const navLinks = document.querySelectorAll('.nav-link');
+const pageTitle = document.querySelector('.page-title');
+const pageSub = document.querySelector('.page-sub');
+const sidebarEl = document.getElementById('sidebar');
+const dashboardView = document.getElementById('dashboardView');
+const otherView = document.getElementById('otherView');
+
+const violetCss = 'var(--violet)', tealCss = 'var(--teal)', amberCss = 'var(--amber)', pinkCss = 'var(--pink)';
+
+const pageContent = {
+  Orders: {
+    icon: 'bi-bag-check',
+    sub: 'Track every order from placement to delivery.',
+    body: `
+      <div class="row g-3">
+        <div class="col-md-4"><div class="mini-card"><div class="panel-sub mb-1">Orders Today</div><div class="card-value">86</div></div></div>
+        <div class="col-md-4"><div class="mini-card"><div class="panel-sub mb-1">Awaiting Shipment</div><div class="card-value">23</div></div></div>
+        <div class="col-md-4"><div class="mini-card"><div class="panel-sub mb-1">Cancelled</div><div class="card-value">4</div></div></div>
+      </div>
+      <div class="panel mt-3">
+        <div class="panel-title mb-3">All Orders</div>
+        <div class="table-responsive">
+          <table class="table table-modern mb-0">
+            <thead><tr><th>Order ID</th><th>Product</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>#4821</td><td>Earbuds Pro</td><td>Rohan Patil</td><td>₹2,499</td><td><span class="status-pill status-completed">Completed</span></td></tr>
+              <tr><td>#4820</td><td>Sneaker Max</td><td>Sneha Joshi</td><td>₹3,199</td><td><span class="status-pill status-pending">Pending</span></td></tr>
+              <tr><td>#4819</td><td>Desk Lamp</td><td>Aman Verma</td><td>₹899</td><td><span class="status-pill status-completed">Completed</span></td></tr>
+              <tr><td>#4818</td><td>Backpack Air</td><td>Priya Nair</td><td>₹1,749</td><td><span class="status-pill status-failed">Failed</span></td></tr>
+              <tr><td>#4817</td><td>Smart Watch</td><td>Karan Shah</td><td>₹5,999</td><td><span class="status-pill status-completed">Completed</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`
+  },
+  Products: {
+    icon: 'bi-box-seam',
+    sub: 'Manage your catalog and track inventory.',
+    body: `
+      <div class="row g-3">
+        ${[['Earbuds Pro','₹2,499','142 in stock',violetCss],['Sneaker Max','₹3,199','58 in stock',tealCss],['Desk Lamp','₹899','9 in stock',amberCss],['Backpack Air','₹1,749','76 in stock',pinkCss],['Smart Watch','₹5,999','34 in stock',violetCss],['Wireless Mouse','₹699','210 in stock',tealCss]]
+          .map(p => `<div class="col-6 col-lg-4">
+            <div class="mini-card">
+              <div class="prod-avatar mb-3" style="background:${p[3]}; width:44px;height:44px;">${p[0].split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+              <div style="font-weight:600;">${p[0]}</div>
+              <div class="panel-sub">${p[1]} · ${p[2]}</div>
+            </div>
+          </div>`).join('')}
+      </div>`
+  },
+  Customers: {
+    icon: 'bi-people',
+    sub: 'See who is buying and how often.',
+    body: `
+      <div class="panel">
+        <div class="panel-title mb-3">Customer Directory</div>
+        <div class="table-responsive">
+          <table class="table table-modern mb-0">
+            <thead><tr><th>Customer</th><th>Orders</th><th>Total Spent</th><th>Last Order</th></tr></thead>
+            <tbody>
+              <tr><td class="d-flex align-items-center gap-2"><div class="prod-avatar" style="background:var(--violet);">RP</div>Rohan Patil</td><td>12</td><td>₹28,450</td><td>2 days ago</td></tr>
+              <tr><td class="d-flex align-items-center gap-2"><div class="prod-avatar" style="background:var(--teal);">SJ</div>Sneha Joshi</td><td>7</td><td>₹15,220</td><td>5 days ago</td></tr>
+              <tr><td class="d-flex align-items-center gap-2"><div class="prod-avatar" style="background:var(--amber);">AV</div>Aman Verma</td><td>3</td><td>₹4,180</td><td>1 week ago</td></tr>
+              <tr><td class="d-flex align-items-center gap-2"><div class="prod-avatar" style="background:var(--pink);">PN</div>Priya Nair</td><td>5</td><td>₹9,870</td><td>2 weeks ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`
+  },
+  Analytics: {
+    icon: 'bi-graph-up-arrow',
+    sub: 'Deeper trends behind your sales numbers.',
+    body: `
+      <div class="panel">
+        <div class="panel-title mb-1">Traffic vs Conversions</div>
+        <div class="panel-sub mb-3">Last 7 days</div>
+        <div class="chart-box chart-md"><canvas id="analyticsChart"></canvas></div>
+      </div>`
+  },
+  Revenue: {
+    icon: 'bi-wallet2',
+    sub: 'Where your money is coming from.',
+    body: `
+      <div class="row g-3">
+        <div class="col-md-4"><div class="mini-card"><div class="panel-sub mb-1">This Month</div><div class="card-value">₹18.4L</div></div></div>
+        <div class="col-md-4"><div class="mini-card"><div class="panel-sub mb-1">Last Month</div><div class="card-value">₹16.4L</div></div></div>
+        <div class="col-md-4"><div class="mini-card"><div class="panel-sub mb-1">Refunded</div><div class="card-value">₹42K</div></div></div>
+      </div>`
+  },
+  Reports: {
+    icon: 'bi-file-earmark-bar-graph',
+    sub: 'Download or review past reports.',
+    body: `
+      <div class="panel">
+        ${['July 2026 — Sales Summary','June 2026 — Sales Summary','Q2 2026 — Category Performance','May 2026 — Sales Summary']
+          .map(r => `<div class="faq-item d-flex justify-content-between align-items-center">
+            <div><i class="bi bi-file-earmark-pdf me-2" style="color:var(--violet)"></i>${r}</div>
+            <button class="btn btn-sm btn-light border rounded-3" onclick="downloadReport('${r.replace(/'/g, "\\'")}')"><i class="bi bi-download"></i></button>
+          </div>`).join('')}
+      </div>`
+  },
+  Settings: {
+    icon: 'bi-gear',
+    sub: 'Manage your account preferences.',
+    body: `
+      <div class="panel" style="max-width:480px;">
+        <div class="mb-3">
+          <label class="form-label panel-sub">Full Name</label>
+          <input type="text" class="form-control" value="Atharva Kamble">
+        </div>
+        <div class="mb-3">
+          <label class="form-label panel-sub">Role</label>
+          <input type="text" class="form-control" value="TY B.Tech Student">
+        </div>
+        <div class="mb-3">
+          <label class="form-label panel-sub">Email Notifications</label>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" checked>
+            <label class="form-check-label panel-sub">Order and revenue alerts</label>
+          </div>
+        </div>
+        <button class="btn rounded-3" style="background:var(--violet); color:#fff;">Save Changes</button>
+      </div>`
+  },
+  'Help Center': {
+    icon: 'bi-question-circle',
+    sub: 'Answers to common questions.',
+    body: `
+      <div class="panel">
+        ${[['How do I export a sales report?','Go to the dashboard and click Export in the top right corner.'],
+           ['Why is an order marked as Failed?','Usually a payment issue — check the transaction with your payment provider.'],
+           ['Can I add a new product?','Yes, from the Products page use the Add Product button (coming soon in this demo).']]
+          .map(f => `<div class="faq-item"><div style="font-weight:600;">${f[0]}</div><div class="panel-sub mt-1">${f[1]}</div></div>`).join('')}
+      </div>`
+  }
+};
+
+navLinks.forEach(link => {
+  link.addEventListener('click', function(e){
+    e.preventDefault();
+    navLinks.forEach(l => l.classList.remove('active'));
+    this.classList.add('active');
+
+    const page = this.dataset.page || 'Dashboard';
+
+    if (page === 'Dashboard') {
+      pageTitle.textContent = 'Sales Report Dashboard';
+      pageSub.textContent = "Welcome back, Atharva — here's how sales are trending this month.";
+      dashboardView.style.display = '';
+      otherView.style.display = 'none';
+    } else {
+      const data = pageContent[page];
+      pageTitle.textContent = page;
+      pageSub.textContent = data ? data.sub : '';
+      dashboardView.style.display = 'none';
+      otherView.style.display = '';
+      otherView.innerHTML = data ? data.body : `<div class="panel">This section is a placeholder in the demo.</div>`;
+
+      if (page === 'Analytics' && typeof Chart !== 'undefined') {
+        new Chart(document.getElementById('analyticsChart'), {
+          type: 'line',
+          data: {
+            labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+            datasets: [
+              { label:'Visitors', data:[320,410,380,460,520,610,540], borderColor:'#6C5CE7', backgroundColor:'rgba(108,92,231,0.12)', fill:true, tension:.4, borderWidth:3, pointRadius:0 },
+              { label:'Conversions', data:[18,22,20,27,31,38,33], borderColor:'#00CEC9', backgroundColor:'rgba(0,206,201,0.12)', fill:true, tension:.4, borderWidth:3, pointRadius:0, yAxisID:'y1' }
+            ]
+          },
+          options: {
+            plugins:{ legend:{ display:true, position:'top', labels:{ boxWidth:10 } } },
+            scales:{
+              x:{ grid:{ display:false } },
+              y:{ grid:{ color:'#EFEEFA' } },
+              y1:{ position:'right', grid:{ display:false } }
+            }
+          }
+        });
+      }
+    }
+
+    // close the drawer on mobile after choosing a link
+    if (window.innerWidth <= 991) {
+      sidebarEl.classList.remove('show');
+    }
+  });
+});
+
+// close mobile sidebar when clicking outside it
+document.addEventListener('click', function(e){
+  if (window.innerWidth <= 991 &&
+      sidebarEl.classList.contains('show') &&
+      !sidebarEl.contains(e.target) &&
+      !e.target.closest('.menu-toggle')) {
+    sidebarEl.classList.remove('show');
+  }
+});
+
+// ---------- Charts ----------
+const violet = '#6C5CE7', violetLight='rgba(108,92,231,0.12)';
+const teal = '#00CEC9', tealLight = 'rgba(0,206,201,0.12)';
+const amber = '#FDCB6E';
+const pink = '#FD79A8';
+const ink = '#1D1B33';
+const muted = '#9490AE';
+
+if (typeof Chart === 'undefined') {
+  ['revenueFallback','categoryFallback','ordersFallback'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'flex';
+  });
+} else {
+
+Chart.defaults.font.family = "Inter";
+Chart.defaults.color = muted;
+
+// Revenue Line Chart
+new Chart(document.getElementById('revenueChart'), {
+  type: 'line',
+  data: {
+    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    datasets: [
+      {
+        label: '2026',
+        data: [120,145,135,160,175,190,210,205,230,250,240,270],
+        borderColor: violet,
+        backgroundColor: violetLight,
+        fill: true,
+        tension: 0.4,
+        borderWidth: 3,
+        pointRadius: 0,
+      },
+      {
+        label: '2025',
+        data: [100,110,120,130,140,150,160,155,170,180,175,190],
+        borderColor: teal,
+        backgroundColor: tealLight,
+        fill: false,
+        tension: 0.4,
+        borderWidth: 2,
+        borderDash: [5,5],
+        pointRadius: 0,
+      }
+    ]
+  },
+  options: {
+    plugins: { legend: { display:false } },
+    scales: {
+      x: { grid: { display:false } },
+      y: { grid: { color:'#EFEEFA' }, ticks:{ callback:v=>'₹'+v+'K' } }
+    },
+    interaction: { intersect:false, mode:'index' }
+  }
+});
+
+// Category Doughnut Chart
+new Chart(document.getElementById('categoryChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Electronics','Fashion','Home & Living','Others'],
+    datasets: [{
+      data: [42,28,18,12],
+      backgroundColor: [violet, teal, amber, pink],
+      borderWidth: 0,
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    cutout: '70%',
+    plugins: { legend: { display:false } }
+  }
+});
+
+// Weekly Orders Bar Chart
+new Chart(document.getElementById('ordersChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets: [{
+      label: 'Orders',
+      data: [65,80,58,95,110,140,90],
+      backgroundColor: violet,
+      borderRadius: 8,
+      maxBarThickness: 28
+    }]
+  },
+  options: {
+    plugins: { legend: { display:false } },
+    scales: {
+      x: { grid: { display:false } },
+      y: { grid: { color:'#EFEEFA' } }
+    }
+  }
+});
+
+} // end Chart availability check
+</script>
+</body>
+</html>
