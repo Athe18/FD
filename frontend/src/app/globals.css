@@ -4,53 +4,98 @@
 
 @import "maplibre-gl/dist/maplibre-gl.css";
 
+/* Apple SF Pro Font & Clean Design System */
 :root {
-  --background: 222 47% 7%;
-  --foreground: 210 40% 98%;
-  --card: 222 47% 11%;
-  --card-foreground: 210 40% 98%;
-  --border: 217 33% 20%;
+  --font-sf-pro: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Helvetica Neue", "Inter", sans-serif;
+  --bg-canvas: #090d16;
+  --bg-surface: #111827;
+  --bg-subtle: #172033;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.16);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --accent-blue: #3b82f6;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
 }
 
 body {
-  color: #f8fafc;
-  background-color: #0b0f19;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-canvas);
+  font-family: var(--font-sf-pro);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
   overflow-x: hidden;
 }
 
-/* Custom modern scrollbars */
+/* Minimalist Clean Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: rgba(255, 255, 255, 0.3);
 }
 
-/* Operational Badges & Glows */
+/* Polished Card Surface Utilities */
+.sf-card {
+  background: #111726;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+}
+
+.sf-card-subtle {
+  background: #0d121f;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.sf-card-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sf-card-hover:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Modern Typography Utilities */
+.sf-headline {
+  font-family: var(--font-sf-pro);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.sf-subhead {
+  font-family: var(--font-sf-pro);
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: -0.01em;
+}
+
+.sf-badge {
+  font-family: var(--font-sf-pro);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* Clean Track Grid */
 .railway-grid {
-  background-size: 30px 30px;
+  background-size: 24px 24px;
   background-image: 
-    linear-gradient(to right, rgba(51, 65, 85, 0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(51, 65, 85, 0.15) 1px, transparent 1px);
-}
-
-.glow-blue {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
-}
-
-.glow-amber {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
-}
-
-.glow-green {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
 }

@@ -2,14 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { 
-  Cpu, 
   Search, 
   Filter, 
-  TrendingDown, 
-  ShieldAlert, 
-  CheckCircle2, 
-  Clock, 
-  Wrench
+  Cpu,
+  Activity
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { getDepartmentColor, getRiskBadge } from "@/lib/utils";
@@ -46,18 +42,13 @@ export default function AssetsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-white/[0.06]">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">
-              Asset Lifecycle & Condition Monitoring
-            </span>
-          </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">
-            Corridor Asset Health & Predictive Maintenance
+          <h1 className="text-xl font-bold tracking-tight text-white">
+            Corridor Asset Health & Condition Diagnostics
           </h1>
-          <p className="text-xs text-slate-400">
-            ML-driven failure probability modeling, ultrasonic flaw history, and risk prioritization
+          <p className="text-xs text-slate-400 mt-0.5">
+            Predictive failure probability modeling, ultrasonic flaw history, and risk prioritization
           </p>
         </div>
 
@@ -70,18 +61,18 @@ export default function AssetsPage() {
               placeholder="Search assets, rails, OHE..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-slate-900 border border-slate-700/80 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              className="bg-white/[0.03] border border-white/[0.08] rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"
             />
           </div>
 
-          <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
+          <div className="flex items-center gap-1 bg-white/[0.03] p-1 rounded-lg border border-white/[0.08] text-xs">
             {["ALL", "ENGINEERING", "TRD", "SNT"].map((d) => (
               <button
                 key={d}
                 onClick={() => setFilterDept(d)}
                 className={`px-2.5 py-1 rounded font-medium transition-all ${
                   filterDept === d
-                    ? "bg-blue-600 text-white font-semibold"
+                    ? "bg-blue-600 text-white font-semibold shadow-sm"
                     : "text-slate-400 hover:text-slate-200"
                 }`}
               >
@@ -93,25 +84,25 @@ export default function AssetsPage() {
       </div>
 
       {/* Assets Table */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 shadow-xl overflow-hidden">
+      <div className="sf-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase font-bold text-[11px] tracking-wider">
+            <thead className="bg-white/[0.02] border-b border-white/[0.06] text-slate-400 font-semibold text-[11px] uppercase tracking-wider">
               <tr>
-                <th className="py-3.5 px-4">Asset Code & Name</th>
-                <th className="py-3.5 px-4">Department</th>
-                <th className="py-3.5 px-4">Location</th>
-                <th className="py-3.5 px-4">Health Score</th>
-                <th className="py-3.5 px-4">ML Failure Risk</th>
-                <th className="py-3.5 px-4">Criticality</th>
-                <th className="py-3.5 px-4">Status</th>
+                <th className="py-3 px-4">Asset Code & Name</th>
+                <th className="py-3 px-4">Department</th>
+                <th className="py-3 px-4">Location</th>
+                <th className="py-3 px-4">Health Index</th>
+                <th className="py-3 px-4">ML Failure Risk</th>
+                <th className="py-3 px-4">Criticality</th>
+                <th className="py-3 px-4">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-white/[0.04]">
               {filteredAssets.map((asset) => (
-                <tr key={asset.id} className="hover:bg-slate-800/40 transition-colors">
+                <tr key={asset.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="py-3.5 px-4">
-                    <div className="font-bold text-white text-xs">{asset.name}</div>
+                    <div className="font-semibold text-white text-xs">{asset.name}</div>
                     <div className="text-[11px] text-slate-500 font-mono">{asset.asset_code} ({asset.asset_type})</div>
                   </td>
                   <td className="py-3.5 px-4">
@@ -124,11 +115,11 @@ export default function AssetsPage() {
                   </td>
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-16 h-2 rounded-full bg-slate-800 overflow-hidden">
+                      <div className="w-16 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                         <div
                           className={`h-full ${
                             asset.health_score < 60
-                              ? "bg-red-500"
+                              ? "bg-rose-500"
                               : asset.health_score < 80
                               ? "bg-amber-500"
                               : "bg-emerald-500"
@@ -136,7 +127,7 @@ export default function AssetsPage() {
                           style={{ width: `${asset.health_score}%` }}
                         />
                       </div>
-                      <span className="font-mono font-bold text-xs">{asset.health_score}/100</span>
+                      <span className="font-mono text-xs text-slate-300">{asset.health_score}/100</span>
                     </div>
                   </td>
                   <td className="py-3.5 px-4">
@@ -144,11 +135,11 @@ export default function AssetsPage() {
                       {(asset.failure_probability * 100).toFixed(0)}% ({asset.risk_category})
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 font-mono">
+                  <td className="py-3.5 px-4 font-mono text-slate-400">
                     {(asset.asset_criticality * 100).toFixed(0)}%
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-white/[0.04] text-slate-300 border border-white/[0.06]">
                       {asset.status || "OPERATIONAL"}
                     </span>
                   </td>
